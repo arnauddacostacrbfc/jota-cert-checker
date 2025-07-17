@@ -2,17 +2,19 @@
 
 ## Description
 
-A script to check SSL certificate expiration date of a list of sites.
+Check SSL certificate expiration date of a list of sites.
 
-The script can be launched in two modes:
+The script comes in two flavours: bash and python, which you can use as you prefer.
 
-* **Terminal**: Output is displayed in your terminal
+It can be launched in two modes:
+
+* **Terminal**: output is displayed in your terminal.
 * **HTML**: the script generates an HTML file (called **certs_check.html** by default) that can be opened with your browser. 
 
 Optionally, you can also embed the HTML and send it via:
 
-* **email**: you will need to install **mutt** if you use this option
-* **slack**: install **imgkit** via pip and **wkhtmltopdf** using your distribution package manager (in RHEL/CentOS you will need to enable EPEL first) Don't forget to configure you Slack Token the **slack_token** variable of jota-cert-checker.sh script
+* **Email**: you will need to install **mutt** if you use this option with the bash script.
+* **Slack**: install **imgkit** via pip and **wkhtmltopdf** using your distribution package manager (in RHEL/CentOS you will need to enable EPEL first) Don't forget to configure the **slack_token** variable. The Python version of the script doesn't currently support slack.
 
 ## Usage
 
@@ -49,6 +51,16 @@ We get the following output in our terminal:
 
 ![screenshot from 2018-02-11 20-33-06](https://user-images.githubusercontent.com/12804701/36077449-5f85d338-0f6b-11e8-991d-1ffef916d4b6.png)
 
+The python version can be launched similarly:
+
+```bash
+./jota-cert-checker.py -f sitelist -o terminal
+```
+
+Generating the following output:
+
+![Screenshot from 2025-07-17 14-03-24](https://github.com/user-attachments/assets/bf879a8f-479d-4ecd-b6fb-2e32ed57f83a)
+
 In HTML mode:
 ```bash
 ./jota-cert-checker.sh -f sitelist -o html
@@ -71,7 +83,7 @@ Also in HTML mode and sending the result to a slack channel:
 ```
 
 ## Docker
-You can also use this script inside a docker container. Just modify the following files as you need:
+You can also use the bash script inside a docker container. Just modify the following files as you need:
 
 * `ssmpt.conf`: specify the mail server (I included gmail as example), mail account and password.
 * `crontab.txt`: specify the mail account and crontab config. By default the script runs everyday at 08AM
