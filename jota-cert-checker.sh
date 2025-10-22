@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -x
+
 #
 # Author        :Julio Sanz
 # Website       :www.elarraydejota.com
@@ -24,8 +25,8 @@ current_date=$(date +%s)
 end_date="${end_date:-}"
 days_left="${days_left:-}"
 certificate_last_day="${certificate_last_day:-}"
-warning_days="${warning_days:-300}"
-alert_days="${alert_days:-150}"
+warning_days="${warning_days:-150}"
+alert_days="${alert_days:-75}"
 # Terminal colors
 ok_color="\e[38;5;40m"
 warning_color="\e[38;5;220m"
@@ -65,68 +66,68 @@ html_mode(){
 		port=$(echo $site | cut -d ":" -f2)
 		timeout $timeout bash -c "cat < /dev/null > /dev/tcp/$sitename/$port"
 		if [ "$?" = 0 ];then
-			certificate_last_day=$(echo | openssl s_client -servername ${sitename} -connect ${site} 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d "=" -f2)
+			certificate_last_day=$(echo | timeout 3 openssl s_client -servername ${sitename} -connect ${site} 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d "=" -f2)
 			end_date=$(date +%s -d "$certificate_last_day")
 			days_left=$(((end_date - current_date) / 86400))
 
 			if [ "$days_left" -gt "$warning_days" ];then
-				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+				echo -n "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				if [ "$show_port" == "true" ];then
-					echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${sitename}:${port}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #33FF4F;\">${sitename}:${port}</td>" >> $html_file
 				else
-					echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${sitename}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #33FF4F;\">${sitename}</td>" >> $html_file
 				fi
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_last_day}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">${days_left}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #33FF4F;\">Ok</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #33FF4F;\">${certificate_last_day}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #33FF4F;\">${days_left}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #33FF4F;\">Ok</td>" >> $html_file
 				echo "</tr>" >> $html_file
 
 			elif [ "$days_left" -le "$warning_days" ] && [ "$days_left" -gt "$alert_days" ];then
-				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+				echo -n "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				if [ "$show_port" == "true" ];then
-					echo "<td style=\"padding: 8px;background-color: #FFE032;\">${sitename}:${port}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #FFE032;\">${sitename}:${port}</td>" >> $html_file
 				else
-					echo "<td style=\"padding: 8px;background-color: #FFE032;\">${sitename}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #FFE032;\">${sitename}</td>" >> $html_file
 				fi
-				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${certificate_last_day}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #FFE032;\">${days_left}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #FFE032;\">Warning</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FFE032;\">${certificate_last_day}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FFE032;\">${days_left}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FFE032;\">Warning</td>" >> $html_file
 				echo "</tr>" >> $html_file
 
 			elif [ "$days_left" -le "$alert_days" ] && [ "$days_left" -gt 0 ];then
-				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+				echo -n "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				if [ "$show_port" == "true" ];then
-					echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${sitename}:${port}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #FF8F32;\">${sitename}:${port}</td>" >> $html_file
 				else
-					echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${sitename}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #FF8F32;\">${sitename}</td>" >> $html_file
 				fi
-				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${certificate_last_day}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">${days_left}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #FF8F32;\">Alert</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FF8F32;\">${certificate_last_day}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FF8F32;\">${days_left}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #FF8F32;\">Alert</td>" >> $html_file
 				echo "</tr>" >> $html_file
 
 			elif [ "$days_left" -le 0 ];then
-				echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+				echo -n "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 				if [ "$show_port" == "true" ];then
-					echo "<td style=\"padding: 8px;background-color: #EF3434;\">${sitename}:${port}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #EF3434;\">${sitename}:${port}</td>" >> $html_file
 				else
-					echo "<td style=\"padding: 8px;background-color: #EF3434;\">${sitename}</td>" >> $html_file
+					echo -n "<td style=\"padding: 8px;background-color: #EF3434;\">${sitename}</td>" >> $html_file
 				fi
-				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${certificate_last_day}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #EF3434;\">${days_left}</td>" >> $html_file
-				echo "<td style=\"padding: 8px;background-color: #EF3434;\">Expired</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #EF3434;\">${certificate_last_day}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #EF3434;\">${days_left}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #EF3434;\">Expired</td>" >> $html_file
 				echo "</tr>" >> $html_file
 			fi
 		else
-			echo "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
+			echo -n "<tr style=\"padding: 8px;text-align: left;font-family: 'Helvetica Neue', sans-serif;\">" >> $html_file
 			if [ "$show_port" == "true" ];then
-				echo "<td style=\"padding: 8px;background-color: #999493;\">${sitename}:${port}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #999493;\">${sitename}:${port}</td>" >> $html_file
 			else
-				echo "<td style=\"padding: 8px;background-color: #999493;\">${sitename}</td>" >> $html_file
+				echo -n "<td style=\"padding: 8px;background-color: #999493;\">${sitename}</td>" >> $html_file
 			fi
-			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
-			echo "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
-			echo "<td style=\"padding: 8px;background-color: #999493;\">Unknown</td>" >> $html_file
+			echo -n "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+			echo -n "<td style=\"padding: 8px;background-color: #999493;\">n/a</td>" >> $html_file
+			echo -n "<td style=\"padding: 8px;background-color: #999493;\">Unknown</td>" >> $html_file
 			echo "</tr>" >> $html_file
 		fi
 	done < ${sites_list}
@@ -170,7 +171,7 @@ terminal_mode(){
 		port=$(echo $site | cut -d ":" -f2)
 		timeout $timeout bash -c "cat < /dev/null > /dev/tcp/$sitename/$port"
 		if [ "$?" = 0 ];then
-			certificate_last_day=$(echo | openssl s_client -servername ${sitename} -connect ${site} 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d "=" -f2)
+			certificate_last_day=$(echo | timeout 3 openssl s_client -servername ${sitename} -connect ${site} 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d "=" -f2)
 			end_date=$(date +%s -d "$certificate_last_day")
 			days_left=$(((end_date - current_date) / 86400))
 		
